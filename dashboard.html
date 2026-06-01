@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Accommodation Survey Dashboard — Ministry of Tourism</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0D1B2A;--ink2:#3D5166;--ink3:#7A8EA0;
+  --surface:#F0F2F7;--white:#fff;
+  --accent:#1A56DB;--accent2:#E8F0FE;
+  --border:#DDE3EC;--border2:#C8D2DE;
+  --success:#0B6E4F;--success-bg:#E6F5F0;
+  --danger:#C0392B;--danger-bg:#FDEDEC;
+  --gold:#92400E;--gold-bg:#FEF3C7;
+  --warn:#B45309;--warn-bg:#FEF9C3;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--ink);min-height:100vh;}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0D1B2A 0%,#1A3A5C 100%);padding:1rem;}
+.login-box{background:var(--white);border-radius:16px;padding:2.5rem 2rem;width:100%;max-width:420px;box-shadow:0 24px 64px rgba(0,0,0,.3);}
+.login-logo{width:52px;height:52px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;}
+.login-logo svg{width:28px;height:28px;fill:white;}
+.login-box h1{font-family:'DM Serif Display',serif;font-size:1.4rem;text-align:center;margin-bottom:.25rem;}
+.login-box p{font-size:12px;color:var(--ink3);text-align:center;margin-bottom:1.75rem;}
+.login-tabs{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:1.5rem;}
+.login-tab{flex:1;padding:9px;font-size:12px;font-weight:600;text-align:center;cursor:pointer;color:var(--ink3);background:var(--surface);transition:all .2s;}
+.login-tab.active{background:var(--accent);color:white;}
+.login-field{display:flex;flex-direction:column;gap:6px;margin-bottom:1rem;}
+.login-field label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);}
+.login-field select,.login-field input{font-family:'DM Sans',sans-serif;font-size:13px;padding:10px 12px;border:1px solid var(--border2);border-radius:8px;background:var(--surface);color:var(--ink);width:100%;}
+.login-field input.shake{animation:shake .4s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+.btn-login{width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:11px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .2s;margin-top:.5rem;}
+.btn-login:hover{background:#1245B5;}
+.login-error{font-size:12px;color:var(--danger);text-align:center;margin-top:.75rem;min-height:18px;}
+.login-hint{font-size:11px;color:var(--ink3);text-align:center;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);}
+.admin-note{font-size:11px;background:var(--gold-bg);color:var(--gold);border-radius:6px;padding:8px 12px;text-align:center;margin-bottom:1rem;}
+
+/* NAV */
+nav{background:var(--ink);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;}
+.nav-brand{display:flex;align-items:center;gap:10px;}
+.nav-logo{width:32px;height:32px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;}
+.nav-logo svg{width:18px;height:18px;fill:white;}
+.nav-title{font-size:13px;font-weight:600;color:white;}
+.nav-sub{font-size:11px;color:rgba(255,255,255,.5);}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.role-pill{font-size:11px;font-weight:600;padding:4px 12px;border-radius:99px;}
+.role-admin{background:#B8860B;color:white;}
+.role-state{background:var(--accent);color:white;}
+.live-dot{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,.6);}
+.dot{width:7px;height:7px;border-radius:50%;background:#4ADE80;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.btn{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;padding:7px 14px;border-radius:7px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:5px;transition:all .2s;text-decoration:none;white-space:nowrap;}
+.btn-nav{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.85);}
+.btn-nav:hover{background:rgba(255,255,255,.2);color:white;}
+.btn-outline{background:var(--white);border:1px solid var(--border2);color:var(--ink2);}
+.btn-outline:hover{background:var(--surface);}
+.btn-accent{background:var(--accent);color:white;}
+.btn-accent:hover{background:#1245B5;}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid #F5C6C2;}
+.btn-danger:hover{background:#F5C6C2;}
+.btn-success{background:var(--success-bg);color:var(--success);border:1px solid #A8D8C8;}
+.btn-success:hover{background:#A8D8C8;}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:5px;}
+
+/* PAGE */
+.page{max-width:1200px;margin:0 auto;padding:1.5rem 1rem 3rem;}
+.dash-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem;}
+.dash-header h1{font-family:'DM Serif Display',serif;font-size:1.75rem;font-weight:400;}
+.dash-header p{font-size:13px;color:var(--ink3);margin-top:2px;}
+
+/* FILTER BAR */
+.filter-bar{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;}
+.filter-group{display:flex;flex-direction:column;gap:4px;}
+.filter-group label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);}
+.filter-group select,.filter-group input{font-family:'DM Sans',sans-serif;font-size:12px;padding:7px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--surface);color:var(--ink);min-width:140px;}
+.filter-divider{width:1px;background:var(--border);align-self:stretch;margin:0 4px;}
+.filter-reset{font-family:'DM Sans',sans-serif;font-size:12px;color:var(--danger);background:none;border:none;cursor:pointer;padding:7px 4px;font-weight:500;}
+.results-count{font-size:12px;color:var(--ink3);align-self:center;margin-left:auto;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;margin-bottom:1.25rem;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;}
+.stat-card.blue{background:var(--accent);border-color:var(--accent);}
+.stat-card.gold{background:#92400E;border-color:#92400E;}
+.stat-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);margin-bottom:.4rem;}
+.stat-card.blue .stat-label,.stat-card.gold .stat-label{color:rgba(255,255,255,.7);}
+.stat-value{font-size:1.6rem;font-weight:300;color:var(--ink);line-height:1;margin-bottom:.2rem;}
+.stat-card.blue .stat-value,.stat-card.gold .stat-value{color:white;}
+.stat-sub{font-size:11px;color:var(--ink3);}
+.stat-card.blue .stat-sub,.stat-card.gold .stat-sub{color:rgba(255,255,255,.6);}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:1.25rem;overflow-x:auto;}
+.tab{padding:10px 18px;font-size:12px;font-weight:600;color:var(--ink3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;white-space:nowrap;}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* CHARTS */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.chart-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.25rem;}
+.chart-card.full{grid-column:1/-1;}
+.chart-title{font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;}
+.chart-title span{font-size:10px;color:var(--ink3);font-weight:400;}
+
+/* TABLE */
+.table-card{background:var(--white);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.table-header-row{display:flex;align-items:center;justify-content:space-between;padding:.875rem 1.25rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px;}
+.table-title{font-size:12px;font-weight:600;color:var(--ink2);}
+.table-wrap{overflow-x:auto;max-height:560px;overflow-y:auto;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--surface);padding:9px 10px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink3);white-space:nowrap;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:#F7F9FF;}
+tbody tr.editing{background:#FFFBEB;outline:2px solid #F59E0B;}
+tbody td{padding:8px 10px;color:var(--ink);white-space:nowrap;vertical-align:middle;}
+tbody td.actions-cell{white-space:nowrap;}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;}
+.badge-blue{background:var(--accent2);color:var(--accent);}
+.badge-green{background:var(--success-bg);color:var(--success);}
+
+/* INLINE EDIT */
+.edit-input{font-family:'DM Sans',sans-serif;font-size:12px;padding:4px 7px;border:1px solid #F59E0B;border-radius:5px;background:white;color:var(--ink);width:100%;min-width:80px;}
+.edit-input:focus{outline:none;border-color:#D97706;box-shadow:0 0 0 2px rgba(245,158,11,.15);}
+.edit-select{font-family:'DM Sans',sans-serif;font-size:12px;padding:4px 7px;border:1px solid #F59E0B;border-radius:5px;background:white;color:var(--ink);}
+
+/* MODAL CONFIRM */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:999;align-items:center;justify-content:center;}
+.modal-bg.show{display:flex;}
+.modal{background:var(--white);border-radius:12px;padding:2rem;max-width:400px;width:90%;text-align:center;}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:.5rem;}
+.modal p{font-size:13px;color:var(--ink3);margin-bottom:1.5rem;}
+.modal-actions{display:flex;gap:10px;justify-content:center;}
+
+/* STATE GRID */
+.state-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:12px;}
+.state-item{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:.875rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all .2s;}
+.state-item:hover,.state-item.active{border-color:var(--accent);background:var(--accent2);}
+.state-name{font-size:12px;font-weight:500;}
+.state-count{font-size:22px;font-weight:300;color:var(--accent);}
+.state-zero{color:var(--border2);}
+
+/* CROSS TABLE */
+.cross-section{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:1.25rem;margin-bottom:12px;}
+.cross-title{font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:1rem;}
+.cross-table{width:100%;border-collapse:collapse;font-size:11px;}
+.cross-table th{background:var(--surface);padding:7px 10px;text-align:left;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);border-bottom:1px solid var(--border);}
+.cross-table td{padding:7px 10px;border-bottom:1px solid var(--border);}
+.cross-table tr:last-child td{border-bottom:none;}
+.cross-table tr:hover td{background:#F7F9FF;}
+.bar-cell{display:flex;align-items:center;gap:8px;}
+.mini-bar{height:6px;border-radius:3px;background:var(--accent);min-width:2px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--ink);color:white;padding:10px 18px;border-radius:8px;font-size:12px;font-weight:500;z-index:9999;opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+
+/* LOADING */
+.loading{text-align:center;padding:4rem;color:var(--ink3);}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty{text-align:center;padding:3rem;color:var(--ink3);font-size:13px;}
+.spinner-sm{width:12px;height:12px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+
+@media(max-width:800px){.charts-row{grid-template-columns:1fr;}.filter-bar{flex-direction:column;}.stats-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-bg" id="deleteModal">
+  <div class="modal">
+    <h3>Delete this entry?</h3>
+    <p id="deleteModalDesc">This will permanently remove the row from the Google Sheet. This cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="cancelDeleteBtn">Cancel</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="white" stroke-width="1.5"/></svg></div>
+    <h1>Accommodation Dashboard</h1>
+    <p>Ministry of Tourism, Government of India</p>
+    <div class="login-tabs">
+      <div class="login-tab active" id="tabAdmin" onclick="switchLoginTab('admin')">Ministry (Admin)</div>
+      <div class="login-tab" id="tabState" onclick="switchLoginTab('state')">State / UT</div>
+    </div>
+    <div id="adminLoginFields">
+      <div class="admin-note">🔒 Admin access — full data + edit across all states</div>
+      <div class="login-field"><label>Admin Password</label><input type="password" id="adminPass" placeholder="Enter ministry password"/></div>
+    </div>
+    <div id="stateLoginFields" style="display:none;">
+      <div class="login-field">
+        <label>Select your State / UT</label>
+        <select id="loginState">
+          <option value="">— Select —</option>
+          <optgroup label="States">
+            <option>Andhra Pradesh</option><option>Arunachal Pradesh</option><option>Assam</option>
+            <option>Bihar</option><option>Chhattisgarh</option><option>Goa</option>
+            <option>Gujarat</option><option>Haryana</option><option>Himachal Pradesh</option>
+            <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+            <option>Madhya Pradesh</option><option>Maharashtra</option><option>Manipur</option>
+            <option>Meghalaya</option><option>Mizoram</option><option>Nagaland</option>
+            <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+            <option>Sikkim</option><option>Tamil Nadu</option><option>Telangana</option>
+            <option>Tripura</option><option>Uttar Pradesh</option><option>Uttarakhand</option>
+            <option>West Bengal</option>
+          </optgroup>
+          <optgroup label="Union Territories">
+            <option>Andaman and Nicobar Islands</option><option>Chandigarh</option>
+            <option>Dadra and Nagar Haveli and Daman and Diu</option><option>Delhi</option>
+            <option>Jammu and Kashmir</option><option>Ladakh</option>
+            <option>Lakshadweep</option><option>Puducherry</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="login-field"><label>State Access Code</label><input type="password" id="loginPass" placeholder="Enter your state access code"/></div>
+    </div>
+    <button class="btn-login" id="loginBtn">Access Dashboard →</button>
+    <div class="login-error" id="loginError"></div>
+    <div class="login-hint">Ministry staff: admin password. States: your state access code.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="appScreen" style="display:none;">
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22" fill="none" stroke="white" stroke-width="1.5"/></svg></div>
+    <div><div class="nav-title">Accommodation Survey Dashboard</div><div class="nav-sub">Ministry of Tourism, India</div></div>
+  </div>
+  <div class="nav-right">
+    <span class="live-dot"><span class="dot"></span> Live</span>
+    <span class="role-pill" id="rolePill"></span>
+    <a class="btn btn-nav" href="form.html">+ Add Entry</a>
+    <button class="btn btn-nav" id="refreshBtn">↺ Refresh</button>
+    <button class="btn btn-nav" id="logoutBtn">Sign out</button>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="dash-header">
+    <div><h1 id="dashTitle">Dashboard</h1><p id="lastUpdated">Loading…</p></div>
+  </div>
+
+  <div id="loadingState" class="loading"><div class="loading-spinner"></div><p id="loadingText">Fetching data…</p></div>
+
+  <div id="mainContent" style="display:none;">
+
+    <div class="filter-bar" id="adminFilterBar" style="display:none;">
+      <div class="filter-group"><label>State / UT</label><select id="fState"><option value="">All States/UTs</option></select></div>
+      <div class="filter-group"><label>Accommodation Type</label>
+        <select id="fType"><option value="">All Types</option>
+          <option>Apartment Hotel</option><option>Bed and Breakfast</option><option>Farm Stay</option>
+          <option>Guest House</option><option>House Boat</option><option>Heritage</option>
+          <option>Homestay Lodge and Tourist Home</option><option>Legacy Vintage</option>
+          <option>Motel</option><option>Resort</option><option>Tented Accommodation</option><option>Other Hotels</option>
+        </select>
+      </div>
+      <div class="filter-group"><label>Classification</label>
+        <select id="fClass"><option value="">All</option>
+          <option>1-Star</option><option>2-Star</option><option>3-Star</option>
+          <option>4-Star</option><option>5-Star</option><option>Any other classification</option><option>Not classified</option>
+        </select>
+      </div>
+      <div class="filter-group"><label>Year Established</label>
+        <select id="fYear"><option value="">Any Year</option>
+          <option>Before 1990</option><option>1990–2000</option><option>2000–2010</option><option>2010–2020</option><option>2020+</option>
+        </select>
+      </div>
+      <div class="filter-divider"></div>
+      <div class="filter-group"><label>Search</label><input type="text" id="fSearch" placeholder="Hotel, district…" style="min-width:180px;"/></div>
+      <button class="filter-reset" id="resetFilters">✕ Reset</button>
+      <span class="results-count" id="resultsCount"></span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card blue"><div class="stat-label">Total Responses</div><div class="stat-value" id="statTotal">0</div><div class="stat-sub" id="statTotalSub">—</div></div>
+      <div class="stat-card"><div class="stat-label" id="statStatesLabel">States/UTs Active</div><div class="stat-value" id="statStates">0</div><div class="stat-sub" id="statStatesSub">Out of 36</div></div>
+      <div class="stat-card"><div class="stat-label">Total Rooms</div><div class="stat-value" id="statRooms">0</div><div class="stat-sub">Across all properties</div></div>
+      <div class="stat-card"><div class="stat-label">Total Beds</div><div class="stat-value" id="statBeds">0</div><div class="stat-sub">Across all properties</div></div>
+      <div class="stat-card"><div class="stat-label">Avg Occupancy</div><div class="stat-value" id="statOcc">—</div><div class="stat-sub">Survey average</div></div>
+      <div class="stat-card"><div class="stat-label">Total Employees</div><div class="stat-value" id="statEmp">0</div><div class="stat-sub">Perm + contractual</div></div>
+      <div class="stat-card gold"><div class="stat-label">Total Investment</div><div class="stat-value" id="statInv">₹0</div><div class="stat-sub">Last 1 year</div></div>
+      <div class="stat-card"><div class="stat-label">Rooms Added</div><div class="stat-value" id="statRoomsAdded">0</div><div class="stat-sub">Last 1 year</div></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="overview">Overview</div>
+      <div class="tab" data-tab="cross" id="crossTab">Cross-State Analysis</div>
+      <div class="tab" data-tab="states" id="statesTab">By State/UT</div>
+      <div class="tab" data-tab="entries">All Entries</div>
+      <div class="tab" data-tab="manage">✏ Manage Entries</div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="tab-panel active" id="tab-overview">
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">Accommodation Type Distribution</div><canvas id="typeChart" height="230"></canvas></div>
+        <div class="chart-card"><div class="chart-title">Star Classification Breakdown</div><canvas id="classChart" height="230"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card full"><div class="chart-title">Responses by State/UT <span>(top 20)</span></div><canvas id="stateBarChart" height="110"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">Avg Occupancy by Type (%)</div><canvas id="occTypeChart" height="230"></canvas></div>
+        <div class="chart-card"><div class="chart-title">Avg Price Rate by Type (₹)</div><canvas id="priceTypeChart" height="230"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card full"><div class="chart-title">Total Rooms vs Beds by State <span>(top 15)</span></div><canvas id="roomsBedsByState" height="110"></canvas></div>
+      </div>
+    </div>
+
+    <!-- CROSS STATE -->
+    <div class="tab-panel" id="tab-cross">
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">Investment by State (₹) <span>top 10</span></div><canvas id="investChart" height="260"></canvas></div>
+        <div class="chart-card"><div class="chart-title">Employees by State <span>top 10</span></div><canvas id="empChart" height="260"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card"><div class="chart-title">Avg Occupancy by State (%) <span>top 15</span></div><canvas id="occStateChart" height="260"></canvas></div>
+        <div class="chart-card"><div class="chart-title">Avg Price Rate by State (₹) <span>top 15</span></div><canvas id="priceStateChart" height="260"></canvas></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card full"><div class="chart-title">Rooms Added Last 1 Year by State</div><canvas id="roomsAddedChart" height="110"></canvas></div>
+      </div>
+      <div class="cross-section">
+        <div class="cross-title">State-wise Summary — All Metrics</div>
+        <div style="overflow-x:auto;"><table class="cross-table"><thead><tr>
+          <th>State / UT</th><th>Responses</th><th>Total Rooms</th><th>Total Beds</th>
+          <th>Rooms Added</th><th>Avg Occ %</th><th>Avg Price ₹</th>
+          <th>Investment ₹</th><th>Employees</th><th>Top Type</th>
+        </tr></thead><tbody id="crossTableBody"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- BY STATE -->
+    <div class="tab-panel" id="tab-states">
+      <div class="state-grid" id="stateGrid"></div>
+      <div id="stateDetailSection" style="display:none;">
+        <div class="table-card">
+          <div class="table-header-row">
+            <div class="table-title" id="stateDetailTitle"></div>
+            <button class="btn btn-outline btn-sm" id="clearStateBtn">✕ Clear</button>
+          </div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>Sr.</th><th>Hotel</th><th>District</th><th>Type</th><th>Class</th><th>Rooms</th><th>Beds</th><th>Occ%</th><th>Price ₹</th><th>Investment ₹</th><th>Employees</th></tr></thead>
+            <tbody id="stateDetailBody"></tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL ENTRIES -->
+    <div class="tab-panel" id="tab-entries">
+      <div class="table-card">
+        <div class="table-header-row">
+          <div class="table-title">All Entries</div>
+          <span style="font-size:11px;color:var(--ink3);" id="entryCount"></span>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>Sr.</th><th>State/UT</th><th>District</th><th>Hotel Name</th>
+            <th>Type</th><th>Class</th><th>Est. Year</th>
+            <th>Rooms</th><th>Beds</th><th>Rooms Added</th>
+            <th>Occ%</th><th>Price ₹</th><th>Investment ₹</th>
+            <th>Employees</th><th>Contact</th><th>Email</th><th>Mobile</th><th>Date</th>
+          </tr></thead>
+          <tbody id="allEntriesBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- MANAGE ENTRIES (Edit / Delete) -->
+    <div class="tab-panel" id="tab-manage">
+      <div class="table-card">
+        <div class="table-header-row">
+          <div class="table-title" id="manageTitle">Manage Entries</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="manageSearch" placeholder="Search hotel or district…" style="font-family:'DM Sans',sans-serif;font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:7px;background:var(--surface);color:var(--ink);min-width:200px;"/>
+            <span style="font-size:11px;color:var(--ink3);" id="manageCount"></span>
+          </div>
+        </div>
+        <div class="table-wrap"><table>
+          <thead><tr>
+            <th>Actions</th><th>Sr.</th><th>State/UT</th><th>Hotel Name</th>
+            <th>District</th><th>LGD</th><th>Type</th><th>Classification</th>
+            <th>Rooms</th><th>Beds</th><th>Rooms Added</th>
+            <th>Occ%</th><th>Price ₹</th><th>Investment ₹</th>
+            <th>Employees</th><th>Contact</th><th>Email</th><th>Mobile</th>
+          </tr></thead>
+          <tbody id="manageBody"></tbody>
+        </table></div>
+      </div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:8px;padding:0 4px;">
+        ✏ Click Edit to modify a row inline. Changes are saved directly to Google Sheets. 🗑 Delete permanently removes the row.
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = "Mot@12345";
+const STATE_PASSWORDS = {
+  "Andhra Pradesh":"AP2024","Arunachal Pradesh":"AR2024","Assam":"AS2024",
+  "Bihar":"BR2024","Chhattisgarh":"CG2024","Goa":"GA2024","Gujarat":"GJ2024",
+  "Haryana":"HR2024","Himachal Pradesh":"HP2024","Jharkhand":"JH2024",
+  "Karnataka":"KA2024","Kerala":"KL2024","Madhya Pradesh":"MP2024",
+  "Maharashtra":"MH2024","Manipur":"MN2024","Meghalaya":"ML2024",
+  "Mizoram":"MZ2024","Nagaland":"NL2024","Odisha":"OD2024","Punjab":"PB2024",
+  "Rajasthan":"RJ2024","Sikkim":"SK2024","Tamil Nadu":"TN2024",
+  "Telangana":"TS2024","Tripura":"TR2024","Uttar Pradesh":"UP2024",
+  "Uttarakhand":"UK2024","West Bengal":"WB2024",
+  "Andaman and Nicobar Islands":"AN2024","Chandigarh":"CH2024",
+  "Dadra and Nagar Haveli and Daman and Diu":"DD2024","Delhi":"DL2024",
+  "Jammu and Kashmir":"JK2024","Ladakh":"LA2024","Lakshadweep":"LD2024","Puducherry":"PY2024"
+};
+const ALL_STATES = Object.keys(STATE_PASSWORDS);
+const SHEET_ID = "11DkBGiNsWNTIasK1QPY7pXizvuzup05FY5QnfYJA1pY";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzd8ZdRubVX29bfsSzxwnnkaUAt9yPwa0e7bpeZ4bFJ_tRcDCOiOIlyLhNvrpine_twRw/exec";
+const PALETTE = ['#1A56DB','#0B6E4F','#B8860B','#C0392B','#7C3AED','#0891B2','#BE185D','#15803D','#92400E','#1E40AF','#065F46','#78350F','#1D4ED8','#047857','#B45309'];
+const TYPES = ['Apartment Hotel','Bed and Breakfast','Farm Stay','Guest House','House Boat','Heritage','Homestay Lodge and Tourist Home','Legacy Vintage','Motel','Resort','Tented Accommodation','Other Hotels'];
+const CLASSES = ['','1-Star','2-Star','3-Star','4-Star','5-Star','Any other classification'];
+
+let isAdmin=false, currentState=null, allData=[], filteredData=[], charts={}, loginMode='admin';
+let pendingDeleteRow=null;
+
+// ── LOGIN ──────────────────────────────────────────────────────
+function switchLoginTab(mode){
+  loginMode=mode;
+  document.getElementById('tabAdmin').classList.toggle('active',mode==='admin');
+  document.getElementById('tabState').classList.toggle('active',mode==='state');
+  document.getElementById('adminLoginFields').style.display=mode==='admin'?'block':'none';
+  document.getElementById('stateLoginFields').style.display=mode==='state'?'block':'none';
+  document.getElementById('loginError').textContent='';
+}
+document.getElementById('loginBtn').addEventListener('click',doLogin);
+document.getElementById('adminPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+
+function doLogin(){
+  const errEl=document.getElementById('loginError');
+  if(loginMode==='admin'){
+    const pass=document.getElementById('adminPass').value.trim();
+    if(!pass){errEl.textContent='Please enter the admin password.';return;}
+    if(pass===ADMIN_PASSWORD){isAdmin=true;currentState=null;errEl.textContent='';launchApp();}
+    else{errEl.textContent='Incorrect admin password.';shakeInput('adminPass');}
+  } else {
+    const state=document.getElementById('loginState').value;
+    const pass=document.getElementById('loginPass').value.trim();
+    if(!state){errEl.textContent='Please select your State / UT.';return;}
+    if(!pass){errEl.textContent='Please enter your access code.';return;}
+    if(STATE_PASSWORDS[state]&&pass===STATE_PASSWORDS[state]){isAdmin=false;currentState=state;errEl.textContent='';launchApp();}
+    else{errEl.textContent='Incorrect access code.';shakeInput('loginPass');}
+  }
+}
+function shakeInput(id){const el=document.getElementById(id);el.classList.add('shake');el.value='';setTimeout(()=>el.classList.remove('shake'),500);}
+
+function tryAutoLogin(){
+  const p=new URLSearchParams(window.location.search);
+  const s=p.get('state'),c=p.get('code');
+  if(s&&c&&STATE_PASSWORDS[s]&&c===STATE_PASSWORDS[s]){isAdmin=false;currentState=s;launchApp();}
+}
+
+function launchApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('appScreen').style.display='block';
+  if(isAdmin){
+    document.getElementById('rolePill').textContent='Ministry Admin';
+    document.getElementById('rolePill').className='role-pill role-admin';
+    document.getElementById('dashTitle').textContent='National Accommodation Survey Dashboard';
+    document.getElementById('adminFilterBar').style.display='flex';
+    document.getElementById('crossTab').style.display='';
+    document.getElementById('statesTab').style.display='';
+  } else {
+    document.getElementById('rolePill').textContent=currentState;
+    document.getElementById('rolePill').className='role-pill role-state';
+    document.getElementById('dashTitle').textContent=currentState+' — Accommodation Dashboard';
+    document.getElementById('adminFilterBar').style.display='none';
+    document.getElementById('crossTab').style.display='none';
+    document.getElementById('statesTab').style.display='none';
+  }
+  loadData();
+}
+
+document.getElementById('logoutBtn').addEventListener('click',()=>{
+  isAdmin=false;currentState=null;allData=[];filteredData=[];
+  Object.values(charts).forEach(c=>c.destroy());charts={};
+  document.getElementById('appScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('adminPass').value='';
+  document.getElementById('loginPass').value='';
+  document.getElementById('mainContent').style.display='none';
+  document.getElementById('loadingState').style.display='none';
+  history.replaceState(null,'',location.pathname);
+});
+document.getElementById('refreshBtn').addEventListener('click',loadData);
+
+// ── DATA LOADING ───────────────────────────────────────────────
+async function loadData(){
+  document.getElementById('loadingState').style.display='block';
+  document.getElementById('mainContent').style.display='none';
+  allData=[];
+  if(isAdmin){
+    document.getElementById('loadingText').textContent='Fetching all 36 state sheets…';
+    const results=await Promise.all(ALL_STATES.map(async state=>{
+      const rows=await fetchCSV(state);rows.forEach(r=>{r._state=state;});return rows;
+    }));
+    results.forEach(rows=>allData.push(...rows));
+    const sf=document.getElementById('fState');
+    sf.innerHTML='<option value="">All States/UTs</option>';
+    [...new Set(allData.map(r=>r._state))].sort().forEach(s=>{const o=document.createElement('option');o.value=s;o.textContent=s;sf.appendChild(o);});
+  } else {
+    document.getElementById('loadingText').textContent=`Fetching ${currentState} data…`;
+    const rows=await fetchCSV(currentState);rows.forEach(r=>{r._state=currentState;});allData=rows;
+  }
+  filteredData=[...allData];
+  document.getElementById('loadingState').style.display='none';
+  document.getElementById('mainContent').style.display='block';
+  document.getElementById('lastUpdated').textContent=`Last updated: ${new Date().toLocaleString('en-IN')} · ${allData.length} total entries`;
+  renderAll(filteredData);
+}
+
+async function fetchCSV(sheetName){
+  try{
+    const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+    const res=await fetch(url);if(!res.ok)return[];return parseCSV(await res.text());
+  }catch{return[];}
+}
+function parseCSV(text){
+  const lines=text.trim().split('\n');if(lines.length<2)return[];
+  const headers=parseRow(lines[0]);
+  return lines.slice(1).map(line=>{
+    const vals=parseRow(line);const obj={};
+    headers.forEach((h,i)=>{obj[h.replace(/^"|"$/g,'').trim()]=(vals[i]||'').replace(/^"|"$/g,'').trim();});
+    return obj;
+  }).filter(r=>r['Name of Hotel']&&r['Name of Hotel']!=='Name of Hotel');
+}
+function parseRow(line){const r=[];let c='';let q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){q=!q;}else if(ch===','&&!q){r.push(c);c='';}else{c+=ch;}}r.push(c);return r;}
+
+// ── FILTERS ────────────────────────────────────────────────────
+['fState','fType','fClass','fYear'].forEach(id=>document.getElementById(id).addEventListener('change',applyFilters));
+document.getElementById('fSearch').addEventListener('input',applyFilters);
+document.getElementById('resetFilters').addEventListener('click',()=>{
+  ['fState','fType','fClass','fYear'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fSearch').value='';applyFilters();
+});
+function applyFilters(){
+  const state=document.getElementById('fState').value,type=document.getElementById('fType').value;
+  const cls=document.getElementById('fClass').value,year=document.getElementById('fYear').value;
+  const q=document.getElementById('fSearch').value.toLowerCase();
+  filteredData=allData.filter(r=>{
+    if(state&&r._state!==state)return false;
+    if(type&&r['Type of Accommodation']!==type)return false;
+    if(cls){const rc=r['Classification']||'Not classified';if(cls==='Not classified'&&rc&&rc!=='Not classified'&&rc!=='')return false;if(cls!=='Not classified'&&!rc.startsWith(cls))return false;}
+    if(year){const y=parseInt(r['Year of Establishment'])||0;if(year==='Before 1990'&&y>=1990)return false;if(year==='1990–2000'&&(y<1990||y>=2000))return false;if(year==='2000–2010'&&(y<2000||y>=2010))return false;if(year==='2010–2020'&&(y<2010||y>=2020))return false;if(year==='2020+'&&y<2020)return false;}
+    if(q&&!(r['Name of Hotel']||'').toLowerCase().includes(q)&&!(r['District']||'').toLowerCase().includes(q)&&!(r._state||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  document.getElementById('resultsCount').textContent=`${filteredData.length} of ${allData.length} entries`;
+  renderAll(filteredData);
+}
+
+// ── RENDER ─────────────────────────────────────────────────────
+function renderAll(data){renderStats(data);renderCharts(data);if(isAdmin){renderCrossTable(data);renderStateGrid(data);}renderAllEntries(data);renderManageTable(data);}
+function num(v){return parseFloat(v)||0;}
+function fmt(n){return n>=1e7?(n/1e7).toFixed(1)+'Cr':n>=1e5?(n/1e5).toFixed(1)+'L':n>=1000?(n/1000).toFixed(1)+'K':String(Math.round(n));}
+
+function renderStats(data){
+  const states=[...new Set(data.map(r=>r._state))];
+  document.getElementById('statTotal').textContent=data.length;
+  document.getElementById('statTotalSub').textContent=isAdmin?'Across all states':'From your state';
+  document.getElementById('statStates').textContent=states.length;
+  document.getElementById('statStatesSub').textContent=isAdmin?'Out of 36 states/UTs':'Districts: '+[...new Set(data.map(r=>r['District']).filter(Boolean))].length;
+  document.getElementById('statStatesLabel').textContent=isAdmin?'States/UTs Active':'Districts Covered';
+  document.getElementById('statRooms').textContent=fmt(data.reduce((s,r)=>s+num(r['Total No. of Rooms']),0));
+  document.getElementById('statBeds').textContent=fmt(data.reduce((s,r)=>s+num(r['Total No. of Beds']),0));
+  const occs=data.map(r=>num(r['Occupancy Rate (%)'])).filter(v=>v>0);
+  document.getElementById('statOcc').textContent=occs.length?(occs.reduce((a,b)=>a+b,0)/occs.length).toFixed(1)+'%':'—';
+  document.getElementById('statEmp').textContent=fmt(data.reduce((s,r)=>s+num(r['Total Employees (Permanent + Contractual)']),0));
+  document.getElementById('statInv').textContent='₹'+fmt(data.reduce((s,r)=>s+num(r['Total Investment Last 1 Year (₹)']),0));
+  document.getElementById('statRoomsAdded').textContent=fmt(data.reduce((s,r)=>s+num(r['Rooms Added in Last 1 Year']),0));
+}
+
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+
+function renderCharts(data){
+  const PAL=PALETTE;
+  const typeCounts={};data.forEach(r=>{const t=r['Type of Accommodation']||'Unknown';typeCounts[t]=(typeCounts[t]||0)+1;});
+  destroyChart('typeChart');charts.typeChart=new Chart(document.getElementById('typeChart'),{type:'doughnut',data:{labels:Object.keys(typeCounts),datasets:[{data:Object.values(typeCounts),backgroundColor:PAL,borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:12}}},responsive:true}});
+  const classCounts={};data.forEach(r=>{const c=r['Classification']||'Not classified';classCounts[c]=(classCounts[c]||0)+1;});
+  destroyChart('classChart');charts.classChart=new Chart(document.getElementById('classChart'),{type:'pie',data:{labels:Object.keys(classCounts),datasets:[{data:Object.values(classCounts),backgroundColor:PAL,borderWidth:0}]},options:{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:12}}},responsive:true}});
+  const typeOcc={};data.forEach(r=>{const t=r['Type of Accommodation']||'Unknown';const o=num(r['Occupancy Rate (%)']);if(o>0){if(!typeOcc[t])typeOcc[t]=[];typeOcc[t].push(o);}});
+  const typeOccAvg=Object.entries(typeOcc).map(([t,v])=>[t,v.reduce((a,b)=>a+b,0)/v.length]).sort((a,b)=>b[1]-a[1]);
+  destroyChart('occTypeChart');charts.occTypeChart=new Chart(document.getElementById('occTypeChart'),{type:'bar',data:{labels:typeOccAvg.map(([t])=>t),datasets:[{data:typeOccAvg.map(([,v])=>v.toFixed(1)),backgroundColor:'#0891B2',borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,max:100},y:{ticks:{font:{size:10}}}},responsive:true}});
+  const typePrice={};data.forEach(r=>{const t=r['Type of Accommodation']||'Unknown';const p=num(r['Average Price Rate (₹)']);if(p>0){if(!typePrice[t])typePrice[t]=[];typePrice[t].push(p);}});
+  const typePriceAvg=Object.entries(typePrice).map(([t,v])=>[t,v.reduce((a,b)=>a+b,0)/v.length]).sort((a,b)=>b[1]-a[1]);
+  destroyChart('priceTypeChart');charts.priceTypeChart=new Chart(document.getElementById('priceTypeChart'),{type:'bar',data:{labels:typePriceAvg.map(([t])=>t),datasets:[{data:typePriceAvg.map(([,v])=>Math.round(v)),backgroundColor:'#BE185D',borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{ticks:{font:{size:10}}}},responsive:true}});
+  if(isAdmin){
+    const stateCounts={};data.forEach(r=>{stateCounts[r._state]=(stateCounts[r._state]||0)+1;});
+    const sorted=Object.entries(stateCounts).sort((a,b)=>b[1]-a[1]).slice(0,20);
+    destroyChart('stateBarChart');charts.stateBarChart=new Chart(document.getElementById('stateBarChart'),{type:'bar',data:{labels:sorted.map(([s])=>s),datasets:[{data:sorted.map(([,v])=>v),backgroundColor:'#1A56DB',borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0}},x:{ticks:{font:{size:9}}}},responsive:true}});
+    const stR={},stB={};data.forEach(r=>{stR[r._state]=(stR[r._state]||0)+num(r['Total No. of Rooms']);stB[r._state]=(stB[r._state]||0)+num(r['Total No. of Beds']);});
+    const topSt=Object.entries(stR).sort((a,b)=>b[1]-a[1]).slice(0,15).map(([s])=>s);
+    destroyChart('roomsBedsByState');charts.roomsBedsByState=new Chart(document.getElementById('roomsBedsByState'),{type:'bar',data:{labels:topSt,datasets:[{label:'Rooms',data:topSt.map(s=>stR[s]||0),backgroundColor:'#1A56DB',borderRadius:3},{label:'Beds',data:topSt.map(s=>stB[s]||0),backgroundColor:'#0B6E4F',borderRadius:3}]},options:{plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:12}}},scales:{y:{beginAtZero:true},x:{ticks:{font:{size:9}}}},responsive:true}});
+    const stInv={};data.forEach(r=>{stInv[r._state]=(stInv[r._state]||0)+num(r['Total Investment Last 1 Year (₹)']);});
+    const topInv=Object.entries(stInv).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    destroyChart('investChart');charts.investChart=new Chart(document.getElementById('investChart'),{type:'bar',data:{labels:topInv.map(([s])=>s),datasets:[{data:topInv.map(([,v])=>v),backgroundColor:'#92400E',borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{callback:v=>'₹'+fmt(v)}},y:{ticks:{font:{size:10}}}},responsive:true}});
+    const stEmp={};data.forEach(r=>{stEmp[r._state]=(stEmp[r._state]||0)+num(r['Total Employees (Permanent + Contractual)']);});
+    const topEmp=Object.entries(stEmp).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    destroyChart('empChart');charts.empChart=new Chart(document.getElementById('empChart'),{type:'bar',data:{labels:topEmp.map(([s])=>s),datasets:[{data:topEmp.map(([,v])=>v),backgroundColor:'#7C3AED',borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true},y:{ticks:{font:{size:10}}}},responsive:true}});
+    const stOcc={};data.forEach(r=>{const o=num(r['Occupancy Rate (%)']);if(o>0){if(!stOcc[r._state])stOcc[r._state]=[];stOcc[r._state].push(o);}});
+    const stOccAvg=Object.entries(stOcc).map(([s,v])=>[s,v.reduce((a,b)=>a+b,0)/v.length]).sort((a,b)=>b[1]-a[1]).slice(0,15);
+    destroyChart('occStateChart');charts.occStateChart=new Chart(document.getElementById('occStateChart'),{type:'bar',data:{labels:stOccAvg.map(([s])=>s),datasets:[{data:stOccAvg.map(([,v])=>v.toFixed(1)),backgroundColor:'#0891B2',borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%'}},y:{ticks:{font:{size:10}}}},responsive:true}});
+    const stPr={};data.forEach(r=>{const p=num(r['Average Price Rate (₹)']);if(p>0){if(!stPr[r._state])stPr[r._state]=[];stPr[r._state].push(p);}});
+    const stPrAvg=Object.entries(stPr).map(([s,v])=>[s,v.reduce((a,b)=>a+b,0)/v.length]).sort((a,b)=>b[1]-a[1]).slice(0,15);
+    destroyChart('priceStateChart');charts.priceStateChart=new Chart(document.getElementById('priceStateChart'),{type:'bar',data:{labels:stPrAvg.map(([s])=>s),datasets:[{data:stPrAvg.map(([,v])=>Math.round(v)),backgroundColor:'#BE185D',borderRadius:4}]},options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{callback:v=>'₹'+v.toLocaleString('en-IN')}},y:{ticks:{font:{size:10}}}},responsive:true}});
+    const stRA={};data.forEach(r=>{stRA[r._state]=(stRA[r._state]||0)+num(r['Rooms Added in Last 1 Year']);});
+    const topRA=Object.entries(stRA).filter(([,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+    destroyChart('roomsAddedChart');charts.roomsAddedChart=new Chart(document.getElementById('roomsAddedChart'),{type:'bar',data:{labels:topRA.map(([s])=>s),datasets:[{data:topRA.map(([,v])=>v),backgroundColor:'#15803D',borderRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true},x:{ticks:{font:{size:9}}}},responsive:true}});
+  } else {
+    const dR={},dB={};data.forEach(r=>{const d=r['District']||'Unknown';dR[d]=(dR[d]||0)+num(r['Total No. of Rooms']);dB[d]=(dB[d]||0)+num(r['Total No. of Beds']);});
+    const dists=Object.keys(dR).sort();
+    destroyChart('stateBarChart');charts.stateBarChart=new Chart(document.getElementById('stateBarChart'),{type:'bar',data:{labels:dists,datasets:[{label:'Rooms',data:dists.map(d=>dR[d]),backgroundColor:'#1A56DB',borderRadius:4},{label:'Beds',data:dists.map(d=>dB[d]),backgroundColor:'#0B6E4F',borderRadius:4}]},options:{plugins:{legend:{position:'top',labels:{font:{size:10},boxWidth:12}}},scales:{y:{beginAtZero:true},x:{ticks:{font:{size:10}}}},responsive:true}});
+    destroyChart('roomsBedsByState');
+  }
+}
+
+function renderCrossTable(data){
+  const sm={};
+  data.forEach(r=>{const s=r._state;if(!sm[s])sm[s]={count:0,rooms:0,beds:0,ra:0,occs:[],prices:[],inv:0,emp:0,types:{}};const m=sm[s];m.count++;m.rooms+=num(r['Total No. of Rooms']);m.beds+=num(r['Total No. of Beds']);m.ra+=num(r['Rooms Added in Last 1 Year']);const o=num(r['Occupancy Rate (%)']);if(o>0)m.occs.push(o);const p=num(r['Average Price Rate (₹)']);if(p>0)m.prices.push(p);m.inv+=num(r['Total Investment Last 1 Year (₹)']);m.emp+=num(r['Total Employees (Permanent + Contractual)']);const t=r['Type of Accommodation']||'Unknown';m.types[t]=(m.types[t]||0)+1;});
+  const maxC=Math.max(...Object.values(sm).map(m=>m.count),1);
+  document.getElementById('crossTableBody').innerHTML=Object.entries(sm).sort((a,b)=>b[1].count-a[1].count).map(([state,m])=>{
+    const avgOcc=m.occs.length?(m.occs.reduce((a,b)=>a+b,0)/m.occs.length).toFixed(1):'—';
+    const avgPr=m.prices.length?'₹'+Math.round(m.prices.reduce((a,b)=>a+b,0)/m.prices.length).toLocaleString('en-IN'):'—';
+    const topT=Object.entries(m.types).sort((a,b)=>b[1]-a[1])[0]?.[0]||'—';
+    return `<tr><td><strong>${state}</strong></td><td><div class="bar-cell"><div class="mini-bar" style="width:${Math.round((m.count/maxC)*100)}px"></div><span>${m.count}</span></div></td><td>${m.rooms.toLocaleString('en-IN')}</td><td>${m.beds.toLocaleString('en-IN')}</td><td>${m.ra.toLocaleString('en-IN')}</td><td>${avgOcc}${avgOcc!=='—'?'%':''}</td><td>${avgPr}</td><td>${m.inv>0?'₹'+fmt(m.inv):'—'}</td><td>${m.emp>0?m.emp.toLocaleString('en-IN'):'—'}</td><td><span class="badge badge-blue">${topT}</span></td></tr>`;
+  }).join('');
+}
+
+function renderStateGrid(data){
+  const sc={};data.forEach(r=>{sc[r._state]=(sc[r._state]||0)+1;});
+  document.getElementById('stateGrid').innerHTML=ALL_STATES.map(s=>{const cnt=sc[s]||0;const rooms=data.filter(r=>r._state===s).reduce((sum,r)=>sum+num(r['Total No. of Rooms']),0);return`<div class="state-item" data-state="${s}" onclick="showStateDetail('${s}')"><div><div class="state-name">${s}</div><div style="font-size:10px;color:var(--ink3);">${rooms>0?fmt(rooms)+' rooms':'No data yet'}</div></div><div class="state-count ${cnt===0?'state-zero':''}">${cnt}</div></div>`;}).join('');
+}
+function showStateDetail(state){
+  document.querySelectorAll('.state-item').forEach(el=>el.classList.toggle('active',el.dataset.state===state));
+  const rows=filteredData.filter(r=>r._state===state);
+  document.getElementById('stateDetailTitle').textContent=`${state} — ${rows.length} entries`;
+  document.getElementById('stateDetailBody').innerHTML=rows.length===0?`<tr><td colspan="11"><div class="empty">No data for ${state} yet.</div></td></tr>`:rows.map((r,i)=>`<tr><td>${i+1}</td><td><strong>${r['Name of Hotel']||'-'}</strong></td><td>${r['District']||'-'}</td><td><span class="badge badge-blue">${r['Type of Accommodation']||'-'}</span></td><td>${r['Classification']||'-'}</td><td>${r['Total No. of Rooms']||'-'}</td><td>${r['Total No. of Beds']||'-'}</td><td>${r['Occupancy Rate (%)']?r['Occupancy Rate (%)']+'%':'-'}</td><td>${r['Average Price Rate (₹)']?'₹'+Number(r['Average Price Rate (₹)']).toLocaleString('en-IN'):'-'}</td><td>${r['Total Investment Last 1 Year (₹)']?'₹'+fmt(num(r['Total Investment Last 1 Year (₹)'])):'-'}</td><td>${r['Total Employees (Permanent + Contractual)']||'-'}</td></tr>`).join('');
+  document.getElementById('stateDetailSection').style.display='block';
+}
+document.getElementById('clearStateBtn').addEventListener('click',()=>{document.querySelectorAll('.state-item').forEach(el=>el.classList.remove('active'));document.getElementById('stateDetailSection').style.display='none';});
+
+function renderAllEntries(data){
+  document.getElementById('entryCount').textContent=`${data.length} entries`;
+  document.getElementById('allEntriesBody').innerHTML=data.length===0?`<tr><td colspan="18"><div class="empty">No entries match the current filters.</div></td></tr>`:data.map((r,i)=>`<tr><td>${i+1}</td><td><span class="badge badge-blue">${r._state}</span></td><td>${r['District']||'-'}</td><td><strong>${r['Name of Hotel']||'-'}</strong></td><td>${r['Type of Accommodation']||'-'}</td><td>${r['Classification']||'-'}</td><td>${r['Year of Establishment']||'-'}</td><td>${r['Total No. of Rooms']||'-'}</td><td>${r['Total No. of Beds']||'-'}</td><td>${r['Rooms Added in Last 1 Year']||'-'}</td><td>${r['Occupancy Rate (%)']?r['Occupancy Rate (%)']+'%':'-'}</td><td>${r['Average Price Rate (₹)']?'₹'+Number(r['Average Price Rate (₹)']).toLocaleString('en-IN'):'-'}</td><td>${r['Total Investment Last 1 Year (₹)']?'₹'+fmt(num(r['Total Investment Last 1 Year (₹)'])):'-'}</td><td>${r['Total Employees (Permanent + Contractual)']||'-'}</td><td>${r['Contact Person Name']||'-'}</td><td style="color:var(--ink3)">${r['Contact Person Email']||'-'}</td><td>${r['Contact Person Mobile']||'-'}</td><td style="color:var(--ink3);font-size:11px;">${r['Timestamp']?new Date(r['Timestamp']).toLocaleDateString('en-IN'):'-'}</td></tr>`).join('');
+}
+
+// ── MANAGE TABLE (Edit / Delete) ───────────────────────────────
+document.getElementById('manageSearch').addEventListener('input', function(){
+  const q=this.value.toLowerCase();
+  const rows=document.querySelectorAll('#manageBody tr[data-idx]');
+  let visible=0;
+  rows.forEach(tr=>{
+    const hotel=(tr.dataset.hotel||'').toLowerCase();
+    const dist=(tr.dataset.dist||'').toLowerCase();
+    const show=!q||hotel.includes(q)||dist.includes(q);
+    tr.style.display=show?'':'none';
+    if(show)visible++;
+  });
+  document.getElementById('manageCount').textContent=`${visible} entries`;
+});
+
+function renderManageTable(data){
+  document.getElementById('manageTitle').textContent=isAdmin?'Manage All Entries':'Manage My Entries — '+currentState;
+  document.getElementById('manageCount').textContent=`${data.length} entries`;
+  const tbody=document.getElementById('manageBody');
+  if(data.length===0){tbody.innerHTML=`<tr><td colspan="18"><div class="empty">No entries yet.</div></td></tr>`;return;}
+  tbody.innerHTML=data.map((r,i)=>`
+    <tr data-idx="${i}" data-hotel="${(r['Name of Hotel']||'').replace(/"/g,'')}" data-dist="${(r['District']||'').replace(/"/g,'')}">
+      <td class="actions-cell">
+        <button class="btn btn-outline btn-sm" onclick="startEdit(${i})">✏ Edit</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete(${i})" style="margin-left:4px;">🗑</button>
+      </td>
+      <td>${r['Sr. No.']||i+1}</td>
+      <td><span class="badge badge-blue">${r._state}</span></td>
+      <td><strong>${r['Name of Hotel']||'-'}</strong></td>
+      <td>${r['District']||'-'}</td>
+      <td>${r['LGD Code']||'-'}</td>
+      <td>${r['Type of Accommodation']||'-'}</td>
+      <td>${r['Classification']||'-'}</td>
+      <td>${r['Total No. of Rooms']||'-'}</td>
+      <td>${r['Total No. of Beds']||'-'}</td>
+      <td>${r['Rooms Added in Last 1 Year']||'-'}</td>
+      <td>${r['Occupancy Rate (%)']?r['Occupancy Rate (%)']+'%':'-'}</td>
+      <td>${r['Average Price Rate (₹)']?'₹'+Number(r['Average Price Rate (₹)']).toLocaleString('en-IN'):'-'}</td>
+      <td>${r['Total Investment Last 1 Year (₹)']?'₹'+fmt(num(r['Total Investment Last 1 Year (₹)'])):'-'}</td>
+      <td>${r['Total Employees (Permanent + Contractual)']||'-'}</td>
+      <td>${r['Contact Person Name']||'-'}</td>
+      <td style="color:var(--ink3)">${r['Contact Person Email']||'-'}</td>
+      <td>${r['Contact Person Mobile']||'-'}</td>
+    </tr>`).join('');
+}
+
+function inp(val,id,type='text'){return`<input class="edit-input" id="ei_${id}" type="${type}" value="${(val||'').replace(/"/g,'&quot;')}"/>`;}
+function sel(val,id,opts){return`<select class="edit-select" id="ei_${id}"><option value="">—</option>${opts.map(o=>`<option${o===val?' selected':''}>${o}</option>`).join('')}</select>`;}
+
+function startEdit(idx){
+  const r=filteredData[idx];
+  const tbody=document.getElementById('manageBody');
+  const rows=tbody.querySelectorAll('tr[data-idx]');
+  let tr=null;for(let row of rows){if(parseInt(row.dataset.idx)===idx){tr=row;break;}}
+  if(!tr)return;
+  tr.classList.add('editing');
+  tr.innerHTML=`
+    <td class="actions-cell">
+      <button class="btn btn-success btn-sm" onclick="saveEdit(${idx})">💾 Save</button>
+      <button class="btn btn-outline btn-sm" onclick="cancelEdit(${idx})" style="margin-left:4px;">✕</button>
+    </td>
+    <td>${r['Sr. No.']||idx+1}</td>
+    <td><span class="badge badge-blue">${r._state}</span></td>
+    <td>${inp(r['Name of Hotel'],'hotelName')}</td>
+    <td>${inp(r['District'],'district')}</td>
+    <td>${inp(r['LGD Code'],'lgd')}</td>
+    <td>${sel(r['Type of Accommodation'],'type',TYPES)}</td>
+    <td>${sel(r['Classification'],'class',CLASSES)}</td>
+    <td>${inp(r['Total No. of Rooms'],'rooms','number')}</td>
+    <td>${inp(r['Total No. of Beds'],'beds','number')}</td>
+    <td>${inp(r['Rooms Added in Last 1 Year'],'roomsAdded','number')}</td>
+    <td>${inp(r['Occupancy Rate (%)'],'occ','number')}</td>
+    <td>${inp(r['Average Price Rate (₹)'],'price','number')}</td>
+    <td>${inp(r['Total Investment Last 1 Year (₹)'],'invest','number')}</td>
+    <td>${inp(r['Total Employees (Permanent + Contractual)'],'emp','number')}</td>
+    <td>${inp(r['Contact Person Name'],'cname')}</td>
+    <td>${inp(r['Contact Person Email'],'cemail','email')}</td>
+    <td>${inp(r['Contact Person Mobile'],'cmobile')}</td>
+  `;
+}
+
+async function saveEdit(idx){
+  const r=filteredData[idx];
+  const g=id=>document.getElementById('ei_'+id);
+  const payload={
+    action:'update',
+    state:r._state,
+    srNo:r['Sr. No.']||idx+1,
+    originalHotelName:r['Name of Hotel'],
+    hotelName:g('hotelName').value.trim(),
+    district:g('district').value.trim(),
+    lgd:g('lgd').value.trim(),
+    type:g('type').value,
+    classification:g('class').value,
+    totalRooms:g('rooms').value,
+    totalBeds:g('beds').value,
+    roomsAdded:g('roomsAdded').value||'0',
+    occupancyRate:g('occ').value,
+    avgPrice:g('price').value,
+    totalInvestment:g('invest').value,
+    totalEmployees:g('emp').value,
+    contactName:g('cname').value.trim(),
+    contactEmail:g('cemail').value.trim(),
+    contactMobile:g('cmobile').value.trim(),
+    pan:r['PAN']||'',
+    yearEstab:r['Year of Establishment']||'',
+    address:r['Address']||'',
+    timestamp:r['Timestamp']||new Date().toISOString()
+  };
+  const tbody=document.getElementById('manageBody');
+  const rows=tbody.querySelectorAll('tr[data-idx]');
+  let tr=null;for(let row of rows){if(parseInt(row.dataset.idx)===idx){tr=row;break;}}
+  if(tr){const savBtn=tr.querySelector('button');if(savBtn){savBtn.disabled=true;savBtn.innerHTML='<span class="spinner-sm"></span> Saving…';}}
+  try{
+    const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data.status==='success'){
+      showToast('Entry updated successfully','success');
+      await loadData();
+    } else {
+      showToast('Error: '+(data.message||'Could not update'),'error');
+      cancelEdit(idx);
+    }
+  } catch(e){showToast('Network error. Please try again.','error');cancelEdit(idx);}
+}
+
+function cancelEdit(idx){loadData();}
+
+function confirmDelete(idx){
+  const r=filteredData[idx];
+  pendingDeleteRow={idx,r};
+  document.getElementById('deleteModalDesc').textContent=`This will permanently delete "${r['Name of Hotel']||'this entry'}" from the ${r._state} sheet. This cannot be undone.`;
+  document.getElementById('deleteModal').classList.add('show');
+}
+document.getElementById('cancelDeleteBtn').addEventListener('click',()=>{document.getElementById('deleteModal').classList.remove('show');pendingDeleteRow=null;});
+document.getElementById('confirmDeleteBtn').addEventListener('click',async()=>{
+  if(!pendingDeleteRow)return;
+  const {r}=pendingDeleteRow;
+  document.getElementById('deleteModal').classList.remove('show');
+  const payload={action:'delete',state:r._state,srNo:r['Sr. No.'],hotelName:r['Name of Hotel']};
+  try{
+    const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});
+    const data=await res.json();
+    if(data.status==='success'){showToast('Entry deleted successfully','success');await loadData();}
+    else showToast('Error: '+(data.message||'Could not delete'),'error');
+  }catch(e){showToast('Network error. Please try again.','error');}
+  pendingDeleteRow=null;
+});
+
+// ── TOAST ──────────────────────────────────────────────────────
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// TABS
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+tryAutoLogin();
+</script>
+</body>
+</html>
